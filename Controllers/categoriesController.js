@@ -12,9 +12,9 @@ export async function GetCategories(_, res) {
 export async function PostCategories(req, res) {
 	const {name} = req.body;
 	try {
-		await db.query(`INSERT INTO categories (name) VALUES ($1);`, [name]);
+		await db.query("INSERT INTO categories (name) VALUES ($1);", [name]);
 		res.sendStatus(201);
 	} catch (error) {
-		return res.status(500).send(error);
+		return res.status(500).send("error");
 	}
 }

@@ -3,7 +3,6 @@ import db from '../dbStrategy/db.js';
 
 export async function GetGames(req, res) {
 	const { name } = req.query;
-	console.log(name)
 	try {
 		const query = `
 			SELECT g.*, c.id as "categoryId", c.name as "categoryName"
@@ -22,15 +21,15 @@ export async function GetGames(req, res) {
 }
 
 export async function PostGames(req, res) {
-	/*
-	const {name} = req.body;
+	const game = req.body;
 	try {
-		const query = "INSERT INTO categories (name) VALUES ($1);";
-		await db.query(query, [name]);
+		const query = `
+			INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay") 
+			VALUES ($1, $2, $3, $4, $5);
+		`;
+		await db.query(query, [game.name, game.image, game.stockTotal, game.categoryId, game.pricePerDay]);
 		res.sendStatus(201);
 	} catch (error) {
 		return res.status(500).send("error");
 	}
-	*/
-	return res.status(500).send("error");
 }

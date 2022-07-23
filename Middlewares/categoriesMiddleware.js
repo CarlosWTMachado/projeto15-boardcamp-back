@@ -1,4 +1,4 @@
-import categorySchema from '../Schemas/schemas.js';
+import {categorySchema} from '../Schemas/schemas.js';
 import db from '../dbStrategy/db.js';
 
 export function ValidaPostCategories(req, res, next) {

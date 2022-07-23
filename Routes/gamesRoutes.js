@@ -1,10 +1,10 @@
 import express from 'express';
 import {GetGames, PostGames} from '../Controllers/gamesController.js';
-//import {} from '../Middlewares/gamesMiddleware.js';
+import {ValidaPostGames, VerificaPostGames} from '../Middlewares/gamesMiddleware.js';
 
 const router = express.Router();
 
 router.get('/games', GetGames);
-router.post('/games', PostGames);
+router.post('/games', ValidaPostGames, VerificaPostGames, PostGames);
 
 export default router;

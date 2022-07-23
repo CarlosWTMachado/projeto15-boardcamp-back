@@ -1,5 +1,2 @@
 .env
 node_modules
-dbStrategy
-Controllers
-Routes/categoriesRoutes.js

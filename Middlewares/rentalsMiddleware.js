@@ -54,3 +54,42 @@ async function HasStockGame(id){
 		throw error;
 	}
 }
+
+export async function VerificaPostRentalsIdReturn(req, res, next) {
+	try {
+		const {returnDate, rentDate, daysRented, pricePerDay} = await HasRental(req.params.id);
+		if(! returnDate){
+			if(returnDate === null) {
+				res.locals.rentDate = rentDate;
+				res.locals.daysRented = daysRented;
+				res.locals.pricePerDay = pricePerDay;
+				next();
+			}
+			else return res.sendStatus(404);
+		}else return res.sendStatus(400);
+	} catch (error) {
+		return res.status(500).send("error");
+	}
+}
+
+async function HasRental(id){
+	try {
+		const query = `
+			SELECT r.*, g."pricePerDay"
+			FROM rentals r
+			JOIN games g
+			ON r."gameId" = g.id
+			WHERE r.id = $1;
+		`;
+		const {rows: rental} = await db.query(query, [id]);
+		if(rental.length > 0) return {
+			returnDate: rental[0].returnDate, 
+			rentDate: rental[0].rentDate,
+			daysRented: rental[0].daysRented,
+			pricePerDay: rental[0].pricePerDay
+		};
+		else return false;
+	} catch (error) {
+		throw error;
+	}
+}

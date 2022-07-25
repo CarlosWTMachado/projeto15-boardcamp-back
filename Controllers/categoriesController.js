@@ -1,13 +1,26 @@
 import db from '../dbStrategy/db.js';
 //import { stripHtml } from "string-strip-html";
 
-export async function GetCategories(_, res) {
+export async function GetCategories(req, res) {
+	const {offset, limit} = req.query;
 	try {
-		const query = `
+		let query = `
 			SELECT *
-			FROM categories;
+			FROM categories
 		`;
-		const {rows: categories} = await db.query(query);
+		let params = [];
+		let count = 1;
+		if(offset){
+			query += `OFFSET $${count}`;
+			count++;
+			params.push(offset);
+		}
+		if(limit){
+			query += `LIMIT $${count}`;
+			count++;
+			params.push(limit);
+		}
+		const {rows: categories} = await db.query(query, params);
 		res.send(categories);
 	} catch (error) {
 		return res.status(500).send(error);

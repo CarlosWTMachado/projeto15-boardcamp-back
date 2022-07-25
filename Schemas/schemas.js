@@ -19,4 +19,10 @@ const customerSchema = joi.object({
 	birthday: joi.string().isoDate().required()
 });
 
-export {categorySchema, gameSchema, customerSchema};
+const rentalSchema = joi.object({
+	customerId: joi.number().required(),
+	gameId: joi.number().required(),
+	daysRented: joi.number().greater(0).required()
+});
+
+export {categorySchema, gameSchema, customerSchema, rentalSchema};

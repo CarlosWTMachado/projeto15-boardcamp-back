@@ -2,7 +2,7 @@ import db from '../dbStrategy/db.js';
 //import { stripHtml } from "string-strip-html";
 
 export async function GetGames(req, res) {
-	const {name, offset, limit} = req.query;
+	const {name, offset, limit, order, desc} = req.query;
 	try {
 		let query = `
 			SELECT g.*, c.id as "categoryId", c.name as "categoryName"
@@ -17,6 +17,7 @@ export async function GetGames(req, res) {
 			count++;
 			params.push(name.toLowerCase()+"%");
 		}
+		if(order) query += ` ORDER BY "${order}"` + ((desc === 'true') ? ` DESC` : ` ASC`);
 		if(offset){
 			query += `OFFSET $${count}`;
 			count++;

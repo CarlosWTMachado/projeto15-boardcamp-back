@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 // import { stripHtml } from "string-strip-html";
 
 export async function GetRentals(req, res) {
-	const {customerId, gameId, offset, limit} = req.query;
+	const {customerId, gameId, offset, limit, order, desc} = req.query;
 	try {
 		let query = `
 			SELECT
@@ -30,6 +30,7 @@ export async function GetRentals(req, res) {
 			count++;
 			params.push(gameId);
 		}
+		if(order) query += ` ORDER BY "${order}"` + ((desc === 'true') ? ` DESC` : ` ASC`);
 		if(offset){
 			query += `OFFSET $${count}`;
 			count++;

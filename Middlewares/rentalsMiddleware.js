@@ -93,3 +93,26 @@ async function HasRental(id){
 		throw error;
 	}
 }
+
+export async function VerificaDeleteRentals(req, res, next) {
+	try {
+		const rental = await HasRentals(req.params.id)
+		if(! await HasRentals(req.params.id)){
+			if(rental === null) next();
+			else return res.sendStatus(404);
+		}else return res.sendStatus(400);
+	} catch (error) {
+		return res.status(500).send("error");
+	}
+}
+
+async function HasRentals(id){
+	try {
+		const query = "SELECT * FROM rentals WHERE id = $1;";
+		const {rows: rental} = await db.query(query, [id]);
+		if(rental.length > 0) return rental[0].returnDate;
+		else return false;
+	} catch (error) {
+		throw error;
+	}
+}

@@ -101,3 +101,17 @@ function getDelayFee({rentDate, daysRented, pricePerDay}){
 	const delayDays = dayjs().diff(dayjs(returnDate), 'day');
 	return (delayDays > 0) ? delayDays * pricePerDay : 0;
 }
+
+export async function DeleteRentals(req, res) {
+	const {id} = req.params;
+	try {
+		const query = `
+			DELETE FROM rentals
+			WHERE id = $1
+		`;
+		await db.query(query, [id]);
+		res.sendStatus(200);
+	} catch (error) {
+		return res.status(500).send(error);
+	}
+}

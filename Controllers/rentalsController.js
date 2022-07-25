@@ -3,9 +3,9 @@ import dayjs from 'dayjs';
 // import { stripHtml } from "string-strip-html";
 
 export async function GetRentals(req, res) {
-	const { customerId, gameId } = req.query;
+	const {customerId, gameId, offset, limit} = req.query;
 	try {
-		const query = `
+		let query = `
 			SELECT
 				r.*,
 				c.id as "customerId", c.name as "customerName",
@@ -19,12 +19,28 @@ export async function GetRentals(req, res) {
 			JOIN categories k
 			ON g."categoryId" = k.id
 		`;
-		const {rows} = (customerId) ?
-			await db.query(query + `WHERE r."customerId" = $1`, [customerId]) :
-			(gameId) ?
-			await db.query(query + `WHERE r."gameId" = $1`, [gameId]) :
-			await db.query(query)
-		;
+		let params = [];
+		let count = 1;
+		if(customerId){
+			query += `WHERE r."customerId" = $${count}`;
+			count++;
+			params.push(customerId);
+		}else if(gameId){
+			query += `WHERE r."gameId" = $${count}`;
+			count++;
+			params.push(gameId);
+		}
+		if(offset){
+			query += `OFFSET $${count}`;
+			count++;
+			params.push(offset);
+		}
+		if(limit){
+			query += `LIMIT $${count}`;
+			count++;
+			params.push(limit);
+		}
+		const {rows} = await db.query(query, params);
 		const rentals = rows.map(value => {
 			const rental = {
 				id: value.id,

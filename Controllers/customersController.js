@@ -2,16 +2,30 @@ import db from '../dbStrategy/db.js';
 //import { stripHtml } from "string-strip-html";
 
 export async function GetCustomers(req, res) {
-	const { cpf } = req.query;
+	const {cpf, offset, limit} = req.query;
 	try {
-		const query = `
+		let query = `
 			SELECT *
 			FROM customers
 		`;
-		const {rows: customers} = (!cpf) ? 
-			await db.query(query) :
-			await db.query(query + `WHERE LOWER(cpf) LIKE $1;`, [cpf+"%"])
-		;
+		let params = [];
+		let count = 1;
+		if(cpf){
+			query += `WHERE cpf LIKE $${count}`;
+			count++;
+			params.push(cpf+"%");
+		}
+		if(offset){
+			query += `OFFSET $${count}`;
+			count++;
+			params.push(offset);
+		}
+		if(limit){
+			query += `LIMIT $${count}`;
+			count++;
+			params.push(limit);
+		}
+		const {rows: customers} = await db.query(query, params);
 		res.send(customers);
 	} catch (error) {
 		return res.status(500).send(error);

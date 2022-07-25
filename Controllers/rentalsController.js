@@ -1,6 +1,6 @@
 import db from '../dbStrategy/db.js';
 import dayjs from 'dayjs';
-//import { stripHtml } from "string-strip-html";
+// import { stripHtml } from "string-strip-html";
 
 export async function GetRentals(req, res) {
 	const { customerId, gameId } = req.query;
@@ -48,39 +48,30 @@ export async function GetRentals(req, res) {
 			}
 			return rental;
 		});
-
 		res.send(rentals);
-		/*
-		const queryRentals = `
-			SELECT *
-			FROM rentals
-		`;
-		const {rows: rentals} = await db.query(queryRentals);
-		const queryCustomer = `
-			SELECT id, name
-			FROM customers
-			WHERE id = $1
-		`;
-		const customers = await Promise.all(
-			rentals.map(async rental => {
-				const {rows: customer} = await db.query(queryCustomer, [rental.customerId]);
-				return {...rental, customer: customer[0]};
-			})
-		);
-		const queryGames = `
-			SELECT *
-			FROM games
-			WHERE id = $1
-		`;
-		const games = await Promise.all(
-			rentals.map(async rental => {
-				const {rows: game} = await db.query(queryGames, [rental.gameId]);
-				return {...rental, game: game[0]};
-			})
-		);
-		res.send({rentals, customers, games});
-		*/
 	} catch (error) {
+		return res.status(500).send(error);
+	}
+}
+
+export async function PostRentals(req, res) {
+	const rental = req.body;
+	const pricePerDay = res.locals.pricePerDay;
+	try {
+		const query = `
+			INSERT INTO rentals ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
+			VALUES ($1, $2, $3, $4, null, $5, null);
+		`;
+		await db.query(query, [
+			rental.customerId,
+			rental.gameId,
+			dayjs().format('YYYY-MM-DD'),
+			rental.daysRented,
+			rental.daysRented * pricePerDay
+		]);
+		res.sendStatus(201);
+	} catch (error) {
+		console.log(error)
 		return res.status(500).send(error);
 	}
 }

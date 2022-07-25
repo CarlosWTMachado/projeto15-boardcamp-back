@@ -1,16 +1,16 @@
 import {gameSchema} from '../Schemas/schemas.js';
 import db from '../dbStrategy/db.js';
 
-export function ValidaPostGames(req, res, next) {
+export function ValidateGames(req, res, next) {
 	const validation = gameSchema.validate(req.body);
 	if(validation.error) return res.status(400).send(validation.error.details);
 	next();
 }
 
-export async function VerificaPostGames(req, res, next) {
+export async function VerifyGames(req, res, next) {
 	try {
 		if(await HasGame(req.body.name)) return res.sendStatus(409);
-		if(!(await HasCategory(req.body.categoryId))) return res.status(400).send("invalid category id");
+		if(! await HasCategory(req.body.categoryId)) return res.status(400).send("invalid category id");
 		next();
 	} catch (error) {
 		return res.status(500).send("error");

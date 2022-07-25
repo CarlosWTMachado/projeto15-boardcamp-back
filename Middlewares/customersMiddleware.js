@@ -1,13 +1,13 @@
 import {customerSchema} from '../Schemas/schemas.js';
 import db from '../dbStrategy/db.js';
 
-export function ValidatePostCustomers(req, res, next) {
+export function ValidateCustomers(req, res, next) {
 	const validation = customerSchema.validate(req.body);
 	if(validation.error) return res.status(400).send(validation.error.details);
 	next();
 }
 
-export async function VerifyPostCustomers(req, res, next) {
+export async function VerifyCustomers(req, res, next) {
 	try {
 		if(await HasCustomer(req.body.cpf)) return res.sendStatus(409);
 		next();

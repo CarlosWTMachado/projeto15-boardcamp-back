@@ -1,13 +1,13 @@
 import {rentalSchema} from '../Schemas/schemas.js';
 import db from '../dbStrategy/db.js';
 
-export function ValidaPostRentals(req, res, next) {
+export function ValidateRentals(req, res, next) {
 	const validation = rentalSchema.validate(req.body);
 	if(validation.error) return res.status(400).send(validation.error.details);
 	next();
 }
 
-export async function VerificaPostRentals(req, res, next) {
+export async function VerifiyRentals(req, res, next) {
 	try {
 		if(! await HasCustomer(req.body.customerId)) return res.sendStatus(400);
 		if(! await HasGame(req.body.gameId)) return res.sendStatus(400);
@@ -55,7 +55,7 @@ async function HasStockGame(id){
 	}
 }
 
-export async function VerificaPostRentalsIdReturn(req, res, next) {
+export async function VerifyRentalsIdReturn(req, res, next) {
 	try {
 		const {returnDate, rentDate, daysRented, pricePerDay} = await HasRental(req.params.id);
 		if(! returnDate){
@@ -94,10 +94,10 @@ async function HasRental(id){
 	}
 }
 
-export async function VerificaDeleteRentals(req, res, next) {
+export async function VerifyDeleteRentals(req, res, next) {
 	try {
-		const rental = await HasRentals(req.params.id)
-		if(! await HasRentals(req.params.id)){
+		const rental = await HasRentalsById(req.params.id)
+		if(! rental){
 			if(rental === null) next();
 			else return res.sendStatus(404);
 		}else return res.sendStatus(400);
@@ -106,7 +106,7 @@ export async function VerificaDeleteRentals(req, res, next) {
 	}
 }
 
-async function HasRentals(id){
+async function HasRentalsById(id){
 	try {
 		const query = "SELECT * FROM rentals WHERE id = $1;";
 		const {rows: rental} = await db.query(query, [id]);

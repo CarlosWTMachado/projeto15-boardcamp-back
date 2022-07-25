@@ -2,7 +2,7 @@ import db from '../dbStrategy/db.js';
 //import { stripHtml } from "string-strip-html";
 
 export async function GetCustomers(req, res) {
-	const {cpf, offset, limit} = req.query;
+	const {cpf, offset, limit, order, desc} = req.query;
 	try {
 		let query = `
 			SELECT *
@@ -15,6 +15,7 @@ export async function GetCustomers(req, res) {
 			count++;
 			params.push(cpf+"%");
 		}
+		if(order) query += ` ORDER BY "${order}"` + ((desc === 'true') ? ` DESC` : ` ASC`);
 		if(offset){
 			query += `OFFSET $${count}`;
 			count++;

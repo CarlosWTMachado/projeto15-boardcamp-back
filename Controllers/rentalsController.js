@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 // import { stripHtml } from "string-strip-html";
 
 export async function GetRentals(req, res) {
-	const {customerId, gameId, offset, limit, order, desc} = req.query;
+	const {customerId, gameId, offset, limit, order, desc, status, startDate} = req.query;
 	try {
 		let query = `
 			SELECT
@@ -25,19 +25,47 @@ export async function GetRentals(req, res) {
 			query += `WHERE r."customerId" = $${count}`;
 			count++;
 			params.push(customerId);
+			if(gameId){
+				query += ` AND r."gameId" = $${count}`;
+				count++;
+				params.push(gameId);
+			}
+			if(status === 'open') query += ` AND r."returnDate" is NULL`;
+			else if(status === 'close') query += ` AND r."returnDate" is not NULL`;
+			if(startDate){
+				query += ` AND "rentDate" >= $${count}`;
+				count++;
+				params.push(startDate);
+			}
 		}else if(gameId){
 			query += `WHERE r."gameId" = $${count}`;
 			count++;
 			params.push(gameId);
+			if(status === 'open') query += ` AND r."returnDate" is NULL`;
+			else if(status === 'close') query += ` AND r."returnDate" is not NULL`;
+			if(startDate){
+				query += ` AND "rentDate" >= $${count}`;
+				count++;
+				params.push(startDate);
+			}
+		}else if(startDate){
+			query += `WHERE "rentDate" >= $${count}`;
+			count++;
+			params.push(startDate);
+			if(status === 'open') query += ` AND r."returnDate" is NULL`;
+			else if(status === 'close') query += ` AND r."returnDate" is not NULL`;
+		}else{
+			if(status === 'open') query += ` WHERE r."returnDate" is NULL`;
+			else if(status === 'close') query += ` WHERE r."returnDate" is not NULL`;
 		}
 		if(order) query += ` ORDER BY "${order}"` + ((desc === 'true') ? ` DESC` : ` ASC`);
 		if(offset){
-			query += `OFFSET $${count}`;
+			query += ` OFFSET $${count}`;
 			count++;
 			params.push(offset);
 		}
 		if(limit){
-			query += `LIMIT $${count}`;
+			query += ` LIMIT $${count}`;
 			count++;
 			params.push(limit);
 		}
@@ -67,6 +95,7 @@ export async function GetRentals(req, res) {
 		});
 		res.send(rentals);
 	} catch (error) {
+		console.log(error)
 		return res.status(500).send(error);
 	}
 }
